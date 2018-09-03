@@ -17,7 +17,7 @@ int ledPin6 = 3;    //BLUE2
 int led1_r, led1_g, led1_b;
 int led2_r, led2_g, led2_b;
 
-int current_V = 0;
+int current_H = 0;
 
 Arduino::Arduino(MainWindow *parent) : QObject(parent)
 {
@@ -68,7 +68,7 @@ void Arduino::setup()  {
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(loop()));
-    timer->start(5000);
+    timer->start(2500);
 }
 
 
@@ -126,23 +126,11 @@ void RGB_to_HSV(int R, int G, int B, int &H, int &S, int &V)
 
 
 void Arduino::loop()  {
-#if 0
-  // choose RGB colors for led 1 (either 0, 100 or 200)
-  // led1_r = int(random(3)) * 100;
-  led1_r = int(random(200));
-  led1_g = int(random(200));
-  led1_b = int(random(200));
-
-  // choose RGB colors for led 2 (numbers between 0 and 200)
-  led2_r = int(random(200));
-  led2_g = int(random(200));
-  led2_b = int(random(200));
-#elif 1
-   // increment V of HSV
-    current_V += 10;
-
+   // increment Hue of HSV
+    current_H = (current_H + 40) % 256;
     // Deduce RGB
-#endif
+    HSV_to_RGB(current_H, 128, 200, led1_r, led1_g, led1_b);
+    HSV_to_RGB(current_H, 128, int(random(200)), led2_r, led2_g, led2_b);
 
   // we do a fade in, from 0% to 100% of the chosen RGB color
   for(int fadePercentage = 0 ; fadePercentage <= 100; fadePercentage +=1) {
@@ -154,7 +142,7 @@ void Arduino::loop()  {
       analogWrite(ledPin4, fadePercentage*led2_r/100);
       analogWrite(ledPin5, fadePercentage*led2_g/100);
       analogWrite(ledPin6, fadePercentage*led2_b/100);
-      delay(20);
+      delay(10);
   }
 
   // now we do a fade out, from 100% to 0% of the chosen RGB color
@@ -167,6 +155,6 @@ void Arduino::loop()  {
       analogWrite(ledPin4, fadePercentage*led2_r/100);
       analogWrite(ledPin5, fadePercentage*led2_g/100);
       analogWrite(ledPin6, fadePercentage*led2_b/100);
-      delay(20);
+      delay(10);
   }
 }
